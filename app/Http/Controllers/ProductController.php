@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\ProductInterface;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantPrice;
@@ -10,6 +11,13 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    protected $product;
+
+    public function __construct(ProductInterface $product)
+    {
+        $this->product = $product;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +25,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return view('products.index');
+        $variants = Variant::all();
+        $lists = $this->product->listData(request());
+
+        return view('products.index', compact('lists', 'variants'));
     }
 
     /**

@@ -6,16 +6,18 @@
         <h1 class="h3 mb-0 text-gray-800">Products</h1>
     </div>
 
-
     <div class="card">
         <form action="" method="get" class="card-header">
             <div class="form-row justify-content-between">
                 <div class="col-md-2">
-                    <input type="text" name="title" placeholder="Product Title" class="form-control">
+                    <input type="text" name="title" placeholder="Product Title" class="form-control" value="{{ request()->get('title') }}">
                 </div>
                 <div class="col-md-2">
                     <select name="variant" id="" class="form-control">
-
+                        <option value="">Select A Variant</option>
+                        @foreach($variants as $variant):
+                        <option value="{{ $variant->id }}" @if(request()->get('variant') == $variant->id) selected @endif>{{ $variant->title }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -24,12 +26,12 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">Price Range</span>
                         </div>
-                        <input type="text" name="price_from" aria-label="First name" placeholder="From" class="form-control">
-                        <input type="text" name="price_to" aria-label="Last name" placeholder="To" class="form-control">
+                        <input type="text" name="price_from" aria-label="First name" placeholder="From" class="form-control" value="{{ request()->get('price_from') }}">
+                        <input type="text" name="price_to" aria-label="Last name" placeholder="To" class="form-control" value="{{ request()->get('price_to') }}">
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <input type="date" name="date" placeholder="Date" class="form-control">
+                    <input type="date" name="date" placeholder="Date" class="form-control" value="{{ request()->get('date') }}">
                 </div>
                 <div class="col-md-1">
                     <button type="submit" class="btn btn-primary float-right"><i class="fa fa-search"></i></button>
@@ -52,22 +54,24 @@
 
                     <tbody>
 
+                    @foreach ($lists as $item)
                     <tr>
-                        <td>1</td>
-                        <td>T-Shirt <br> Created at : 25-Aug-2020</td>
-                        <td>Quality product in low cost</td>
+                        <td>{{ $item->id }}</td>
+                        <td>{{ $item->title }} <br> Created at : {{ $item->created_at }}</td>
+                        <td>{{ Str::limit($item->description, 100) }}</td>
                         <td>
                             <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant">
-
+                                @foreach($item->varientPrices as $info):
                                 <dt class="col-sm-3 pb-0">
-                                    SM/ Red/ V-Nick
+                                    {{ $info['varient'] }}
                                 </dt>
                                 <dd class="col-sm-9">
                                     <dl class="row mb-0">
-                                        <dt class="col-sm-4 pb-0">Price : {{ number_format(200,2) }}</dt>
-                                        <dd class="col-sm-8 pb-0">InStock : {{ number_format(50,2) }}</dd>
+                                        <dt class="col-sm-4 pb-0">Price : {{ number_format($info['price'],2) }}</dt>
+                                        <dd class="col-sm-8 pb-0">InStock : {{ number_format($info['stock'],2) }}</dd>
                                     </dl>
                                 </dd>
+                                @endforeach
                             </dl>
                             <button onclick="$('#variant').toggleClass('h-auto')" class="btn btn-sm btn-link">Show more</button>
                         </td>
@@ -77,7 +81,7 @@
                             </div>
                         </td>
                     </tr>
-
+                    @endforeach
                     </tbody>
 
                 </table>
@@ -88,10 +92,12 @@
         <div class="card-footer">
             <div class="row justify-content-between">
                 <div class="col-md-6">
-                    <p>Showing 1 to 10 out of 100</p>
+                    <p>Showing {{($lists->currentPage()-1)* $lists->perPage()+($lists->total() ? 1:0)}} to {{($lists->currentPage()-1)*$lists->perPage()+count($lists)}} out of {{ $lists->total() }}</p>
                 </div>
                 <div class="col-md-2">
-
+                    @if ($lists->hasPages())
+                        {{ $lists->withQueryString()->links() }}
+                    @endif
                 </div>
             </div>
         </div>
