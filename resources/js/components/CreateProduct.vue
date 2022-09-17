@@ -28,8 +28,6 @@
                             ref="myVueDropzone"
                             id="dropzone"
                             :options="dropzoneOptions"
-                            @vdropzone-sending="appendLocation"
-                            @vdropzone-success="handleResponse"
                         ></vue-dropzone>
                     </div>
                 </div>
@@ -147,20 +145,6 @@ export default {
         }
     },
     methods: {
-        appendLocation(file, xhr, formData) {
-          formData.append("path", this.location);
-        },
-        handleResponse(file, response) {
-          console.log(response);
-          var Image = {
-            key: response.key,
-            imageId: parseInt(response.id),
-            bucket: this.location
-          };
-          this.selectedImages.push(Image);
-          this.$emit("input", this.selectedImages);
-        },
-
         // it will push a new object into product variant
         newVariant() {
             let all_variants = this.variants.map(el => el.id)

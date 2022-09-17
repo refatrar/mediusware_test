@@ -2016,8 +2016,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 
 
 
@@ -2063,19 +2061,6 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    appendLocation: function appendLocation(file, xhr, formData) {
-      formData.append("path", this.location);
-    },
-    handleResponse: function handleResponse(file, response) {
-      console.log(response);
-      var Image = {
-        key: response.key,
-        imageId: parseInt(response.id),
-        bucket: this.location
-      };
-      this.selectedImages.push(Image);
-      this.$emit("input", this.selectedImages);
-    },
     // it will push a new object into product variant
     newVariant: function newVariant() {
       var all_variants = this.variants.map(function (el) {
@@ -50612,11 +50597,7 @@ var render = function() {
             [
               _c("vue-dropzone", {
                 ref: "myVueDropzone",
-                attrs: { id: "dropzone", options: _vm.dropzoneOptions },
-                on: {
-                  "vdropzone-sending": _vm.appendLocation,
-                  "vdropzone-success": _vm.handleResponse
-                }
+                attrs: { id: "dropzone", options: _vm.dropzoneOptions }
               })
             ],
             1

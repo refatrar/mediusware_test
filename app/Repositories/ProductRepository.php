@@ -125,6 +125,7 @@ class ProductRepository implements ProductInterface
                 $productData = $data->only('title', 'sku', 'description');
                 $product->update($productData);
 
+
                 $this->processingImages($data->product_image, $product->id);
 
                 $variantData = $this->processingVariant($data->product_variant, $product->id);
@@ -136,6 +137,7 @@ class ProductRepository implements ProductInterface
         }
         catch (\Exception $error) {
             DB::rollBack();
+            dd($error->getMessage());
             throw $error;
         }
     }
@@ -143,7 +145,7 @@ class ProductRepository implements ProductInterface
     private function processingImages($data, $product_id){
         try {
             DB::beginTransaction();
-                $this->productImage->delete(['product_id' => $product_id]);
+                $this->productImage->where(['product_id' => $product_id])->delete();
 
                 $array = array_map(function($item) use($product_id) {
                     return [
@@ -168,9 +170,10 @@ class ProductRepository implements ProductInterface
         try {
             $array = [];
 
-            $this->productVariant->delete(['product_id' => $product_id]);
-
             DB::beginTransaction();
+                $this->productVariantPrice->where(['product_id' => $product_id])->delete();
+                $this->productVariant->where(['product_id' => $product_id])->delete();
+
                 foreach($data as $item):
                     foreach($item['tags'] as $tag):
                 $result = $this->productVariant->create([
@@ -195,8 +198,6 @@ class ProductRepository implements ProductInterface
     private function processingVariantPrices($data, $variant, $product_id)
     {
         try {
-            $this->productVariantPrice->delete(['product_id' => $product_id]);
-
             $array = [];
 
             DB::beginTransaction();
@@ -232,6 +233,7 @@ class ProductRepository implements ProductInterface
         }
         catch (\Exception $error) {
             DB::rollBack();
+            dd($error->getMessage());
             throw $error;
         }
     }
