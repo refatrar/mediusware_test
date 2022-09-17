@@ -2012,6 +2012,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2024,9 +2030,15 @@ __webpack_require__.r(__webpack_exports__);
     variants: {
       type: Array,
       required: true
+    },
+    product: {
+      type: Object,
+      required: false
     }
   },
   data: function data() {
+    var _this = this;
+
     return {
       product_name: '',
       product_sku: '',
@@ -2043,11 +2055,27 @@ __webpack_require__.r(__webpack_exports__);
         maxFilesize: 0.5,
         headers: {
           "My-Awesome-Header": "header value"
+        },
+        success: function success(file, response) {
+          _this.images.push(response.files.file);
         }
       }
     };
   },
   methods: {
+    appendLocation: function appendLocation(file, xhr, formData) {
+      formData.append("path", this.location);
+    },
+    handleResponse: function handleResponse(file, response) {
+      console.log(response);
+      var Image = {
+        key: response.key,
+        imageId: parseInt(response.id),
+        bucket: this.location
+      };
+      this.selectedImages.push(Image);
+      this.$emit("input", this.selectedImages);
+    },
     // it will push a new object into product variant
     newVariant: function newVariant() {
       var all_variants = this.variants.map(function (el) {
@@ -2069,7 +2097,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     // check the variant and render all the combination
     checkVariant: function checkVariant() {
-      var _this = this;
+      var _this2 = this;
 
       var tags = [];
       this.product_variant_prices = [];
@@ -2077,7 +2105,7 @@ __webpack_require__.r(__webpack_exports__);
         tags.push(item.tags);
       });
       this.getCombn(tags).forEach(function (item) {
-        _this.product_variant_prices.push({
+        _this2.product_variant_prices.push({
           title: item,
           price: 0,
           stock: 0
@@ -2108,16 +2136,34 @@ __webpack_require__.r(__webpack_exports__);
         product_variant: this.product_variant,
         product_variant_prices: this.product_variant_prices
       };
-      axios.post('/product', product).then(function (response) {
-        console.log(response.data);
-      })["catch"](function (error) {
-        console.log(error);
-      });
+
+      if (this.id) {
+        axios.put("/product/".concat(this.id), product).then(function (response) {
+          console.log(response.data); // window.location.href = "/product";
+        })["catch"](function (error) {
+          console.log(error);
+        });
+      } else {
+        axios.post('/product', product).then(function (response) {
+          console.log(response.data);
+          window.location.href = "/product";
+        })["catch"](function (error) {
+          console.log(error);
+        });
+      }
+
       console.log(product);
     }
   },
   mounted: function mounted() {
-    console.log('Component mounted.');
+    if (this.$props.product) {
+      this.id = this.$props.product.id;
+      this.product_name = this.$props.product.title;
+      this.product_sku = this.$props.product.sku;
+      this.description = this.$props.product.description;
+      this.product_variant = this.$props.product.product_variant;
+      this.product_variant_prices = this.$props.product.product_variant_prices;
+    }
   }
 });
 
@@ -50566,7 +50612,11 @@ var render = function() {
             [
               _c("vue-dropzone", {
                 ref: "myVueDropzone",
-                attrs: { id: "dropzone", options: _vm.dropzoneOptions }
+                attrs: { id: "dropzone", options: _vm.dropzoneOptions },
+                on: {
+                  "vdropzone-sending": _vm.appendLocation,
+                  "vdropzone-success": _vm.handleResponse
+                }
               })
             ],
             1

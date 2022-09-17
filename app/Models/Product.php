@@ -12,6 +12,18 @@ class Product extends Model
 
     protected $with = ['varientPrices'];
 
+    public static function boot()
+    {
+        parent::boot();
+        static::created(function ($model) {
+            $model->created_at = now();
+        });
+        static::updated(function ($model) {
+            $model->updated_at = now();
+        });
+
+    }
+
     public function varientPrices()
     {
         return $this->hasMany(\App\Models\ProductVariantPrice::class, 'product_id');

@@ -9,5 +9,4 @@ class Variant extends Model
     protected $fillable = [
         'title', 'description'
     ];
-
 }

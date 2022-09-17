@@ -24,7 +24,13 @@
                         <h6 class="m-0 font-weight-bold text-primary">Media</h6>
                     </div>
                     <div class="card-body border">
-                        <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
+                        <vue-dropzone
+                            ref="myVueDropzone"
+                            id="dropzone"
+                            :options="dropzoneOptions"
+                            @vdropzone-sending="appendLocation"
+                            @vdropzone-success="handleResponse"
+                        ></vue-dropzone>
                     </div>
                 </div>
             </div>
@@ -110,6 +116,10 @@ export default {
         variants: {
             type: Array,
             required: true
+        },
+        product: {
+            type: Object,
+            required: false
         }
     },
     data() {
@@ -129,11 +139,28 @@ export default {
                 url: 'https://httpbin.org/post',
                 thumbnailWidth: 150,
                 maxFilesize: 0.5,
-                headers: {"My-Awesome-Header": "header value"}
+                headers: {"My-Awesome-Header": "header value"},
+                success: (file, response) => {
+                    this.images.push(response.files.file)
+                }
             }
         }
     },
     methods: {
+        appendLocation(file, xhr, formData) {
+          formData.append("path", this.location);
+        },
+        handleResponse(file, response) {
+          console.log(response);
+          var Image = {
+            key: response.key,
+            imageId: parseInt(response.id),
+            bucket: this.location
+          };
+          this.selectedImages.push(Image);
+          this.$emit("input", this.selectedImages);
+        },
+
         // it will push a new object into product variant
         newVariant() {
             let all_variants = this.variants.map(el => el.id)
@@ -188,20 +215,39 @@ export default {
                 product_variant_prices: this.product_variant_prices
             }
 
+            if(this.id)
+            {
+                axios.put(`/product/${this.id}`, product).then(response => {
+                    console.log(response.data);
+                    // window.location.href = "/product";
+                }).catch(error => {
+                    console.log(error);
+                })
 
-            axios.post('/product', product).then(response => {
-                console.log(response.data);
-            }).catch(error => {
-                console.log(error);
-            })
+            }
+            else{
+                axios.post('/product', product).then(response => {
+                    console.log(response.data);
+                    window.location.href = "/product";
+                }).catch(error => {
+                    console.log(error);
+                })
 
+            }
             console.log(product);
         }
 
 
     },
     mounted() {
-        console.log('Component mounted.')
+        if(this.$props.product){
+            this.id = this.$props.product.id
+            this.product_name = this.$props.product.title
+            this.product_sku = this.$props.product.sku
+            this.description = this.$props.product.description
+            this.product_variant = this.$props.product.product_variant
+            this.product_variant_prices = this.$props.product.product_variant_prices
+        }
     }
 }
 </script>

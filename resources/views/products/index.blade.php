@@ -16,7 +16,11 @@
                     <select name="variant" id="" class="form-control">
                         <option value="">Select A Variant</option>
                         @foreach($variants as $variant):
-                        <option value="{{ $variant->id }}" @if(request()->get('variant') == $variant->id) selected @endif>{{ $variant->title }}</option>
+                        <optgroup label="{{ $variant->title }}">
+                            @foreach($variant->types as $type):
+                            <option value="{{ $type }}" @if(request()->get('variant') == $type) selected @endif>{{ $type }}</option>
+                            @endforeach
+                        </optgroup>
                         @endforeach
                     </select>
                 </div>
@@ -77,7 +81,7 @@
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <a href="{{ route('product.edit', 1) }}" class="btn btn-success">Edit</a>
+                                <a href="{{ route('product.edit', $item->id) }}" class="btn btn-success">Edit</a>
                             </div>
                         </td>
                     </tr>

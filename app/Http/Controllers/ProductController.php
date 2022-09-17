@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantPrice;
 use App\Models\Variant;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -25,7 +26,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $variants = Variant::all();
+        $variants = $this->product->listVariant();
         $lists = $this->product->listData(request());
 
         return view('products.index', compact('lists', 'variants'));
@@ -39,7 +40,9 @@ class ProductController extends Controller
     public function create()
     {
         $variants = Variant::all();
-        return view('products.create', compact('variants'));
+        $product = null;
+
+        return view('products.create', compact('variants', 'product'));
     }
 
     /**
@@ -50,7 +53,9 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $product = $this->product->processingStore($request);
 
+        return response()->json(['message' => 'Product stored sucessfully', 'data' => $product], JsonResponse::HTTP_OK);
     }
 
 
@@ -74,7 +79,9 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $variants = Variant::all();
-        return view('products.edit', compact('variants'));
+        $product = $this->product->handleProductData($product->toArray());
+
+        return view('products.edit', compact('variants', 'product'));
     }
 
     /**
@@ -86,7 +93,9 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $product = $this->product->processingUpdate($request, $product);
+
+        return response()->json(['message' => 'Product updated sucessfully', 'data' => $product], JsonResponse::HTTP_OK);
     }
 
     /**
