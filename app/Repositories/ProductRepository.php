@@ -145,8 +145,6 @@ class ProductRepository implements ProductInterface
     private function processingImages($data, $product_id){
         try {
             DB::beginTransaction();
-                $this->productImage->where(['product_id' => $product_id])->delete();
-
                 $array = array_map(function($item) use($product_id) {
                     return [
                         'product_id' => $product_id,
@@ -155,6 +153,7 @@ class ProductRepository implements ProductInterface
                 }, $data);
 
                 if(count($array)):
+                    $this->productImage->where(['product_id' => $product_id])->delete();
                     $this->productImage->insert($array);
                 endif;
             DB::commit();
@@ -176,7 +175,7 @@ class ProductRepository implements ProductInterface
 
                 foreach($data as $item):
                     foreach($item['tags'] as $tag):
-                $result = $this->productVariant->create([
+                        $result = $this->productVariant->create([
                             'variant' => $tag,
                             'variant_id' => $item['option'],
                             'product_id' => $product_id,

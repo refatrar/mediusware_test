@@ -203,7 +203,7 @@ export default {
             {
                 axios.put(`/product/${this.id}`, product).then(response => {
                     console.log(response.data);
-                    // window.location.href = "/product";
+                    window.location.href = "/product";
                 }).catch(error => {
                     console.log(error);
                 })

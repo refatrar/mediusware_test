@@ -2124,7 +2124,8 @@ __webpack_require__.r(__webpack_exports__);
 
       if (this.id) {
         axios.put("/product/".concat(this.id), product).then(function (response) {
-          console.log(response.data); // window.location.href = "/product";
+          console.log(response.data);
+          window.location.href = "/product";
         })["catch"](function (error) {
           console.log(error);
         });
